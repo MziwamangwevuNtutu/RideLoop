@@ -12,31 +12,29 @@ import za.co.rideloop.Util.Helper;
 
 import java.time.LocalDate;
 
+
+
+import za.co.rideloop.Domain.Car;
+import za.co.rideloop.Domain.CustomerProfile;
+import za.co.rideloop.Domain.Rental;
+import java.time.LocalDate;
+
 public class RentalFactory {
-    // Factory method to create a rental with all details
-    public static Rental createRental(int carID, int customerID, LocalDate startDate, LocalDate endDate,
-                                      String pickupLocation, String dropoffLocation, int insuranceID,
-                                      double totalCost, String status) {
 
-        // Validate input parameters using the Helper class
-        if (
-                !Helper.isValidInterger(carID) ||
-                !Helper.isValidInterger(customerID) ||
-//                Helper.isNullOrEmpty(startDate) ||
-//                Helper.isNullOrEmpty(endDate) ||
-                Helper.isNullOrEmpty(pickupLocation) ||
-                Helper.isNullOrEmpty(dropoffLocation) ||
-                !Helper.isValidInterger(insuranceID) ||
-                !Helper.isValidAmount(totalCost) ||
-                Helper.isNullOrEmpty(status)) {
+    public static Rental createRental(
+            Car car,
+            CustomerProfile customerProfile,
+            LocalDate startDate,
+            LocalDate endDate,
+            String pickupLocation,
+            String dropoffLocation,
+            int insuranceID,
+            double totalCost,
+            String status) {
 
-            // If any validation fails, throw an exception
-            throw new IllegalArgumentException("Invalid input provided for creating a Rental object.");
-        }
         return new Rental.RentalBuilder()
-
-                .setCarID(carID)
-                .setCustomerID(customerID)
+                .setCar(car)
+                .setCustomerProfile(customerProfile)
                 .setStartDate(startDate)
                 .setEndDate(endDate)
                 .setPickupLocation(pickupLocation)

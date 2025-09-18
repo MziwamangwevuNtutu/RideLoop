@@ -15,17 +15,28 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "rentals")
 public class Rental {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int rentalID;
-    private int carID;
-    private int customerID;
+
+    // Establishes a many-to-one relationship with the Car entity.
+    // Each rental is for one car, but a car can have multiple rentals.
+    @ManyToOne
+    @JoinColumn(name = "car_id", nullable = false)
+    private Car car;
+
+    // Establishes a many-to-one relationship with the CustomerProfile entity.
+    // Each rental belongs to one customer, but a customer can have multiple rentals.
+    @ManyToOne
+    @JoinColumn(name = "customer_id", nullable = false)
+    private CustomerProfile customerProfile;
+
     private LocalDate startDate;
     private LocalDate endDate;
     private String pickupLocation;
     private String dropoffLocation;
     private int insuranceID;
-
     private double totalCost;
     private String status;
 
@@ -34,8 +45,8 @@ public class Rental {
 
     private Rental(RentalBuilder builder) {
         this.rentalID = builder.rentalID;
-        this.carID = builder.carID;
-        this.customerID = builder.customerID;
+        this.car = builder.car;
+        this.customerProfile = builder.customerProfile;
         this.startDate = builder.startDate;
         this.endDate = builder.endDate;
         this.pickupLocation = builder.pickupLocation;
@@ -45,16 +56,17 @@ public class Rental {
         this.status = builder.status;
     }
 
+    // Getters and Setters (omitted for brevity)
     public int getRentalID() {
         return rentalID;
     }
 
-    public int getCarID() {
-        return carID;
+    public Car getCar() {
+        return car;
     }
 
-    public int getCustomerID() {
-        return customerID;
+    public CustomerProfile getCustomerProfile() {
+        return customerProfile;
     }
 
     public LocalDate getStartDate() {
@@ -87,12 +99,12 @@ public class Rental {
 
     @Override
     public String toString() {
-        return "RentalRepository{" +
+        return "Rental{" +
                 "rentalID=" + rentalID +
-                ", carID=" + carID +
-                ", customerID=" + customerID +
-                ", startDate='" + startDate + '\'' +
-                ", endDate='" + endDate + '\'' +
+                ", car=" + (car != null ? car.getCarId() : "null") +
+                ", customerProfile=" + (customerProfile != null ? customerProfile.getProfileID() : "null") +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
                 ", pickupLocation='" + pickupLocation + '\'' +
                 ", dropoffLocation='" + dropoffLocation + '\'' +
                 ", insuranceID=" + insuranceID +
@@ -100,10 +112,11 @@ public class Rental {
                 ", status='" + status + '\'' +
                 '}';
     }
+
     public static class RentalBuilder {
         private int rentalID;
-        private int carID;
-        private int customerID;
+        private Car car;
+        private CustomerProfile customerProfile;
         private LocalDate startDate;
         private LocalDate endDate;
         private String pickupLocation;
@@ -120,13 +133,13 @@ public class Rental {
             return this;
         }
 
-        public RentalBuilder setCarID(int carID) {
-            this.carID = carID;
+        public RentalBuilder setCar(Car car) {
+            this.car = car;
             return this;
         }
 
-        public RentalBuilder setCustomerID(int customerID) {
-            this.customerID = customerID;
+        public RentalBuilder setCustomerProfile(CustomerProfile customerProfile) {
+            this.customerProfile = customerProfile;
             return this;
         }
 
@@ -166,8 +179,8 @@ public class Rental {
         }
         public RentalBuilder RentalBuilderCopy(Rental rental) {
             this.rentalID = rental.rentalID;
-            this.carID = rental.carID;
-            this.customerID = rental.customerID;
+            this.car = rental.car;
+            this.customerProfile = rental.customerProfile;
             this.startDate = rental.startDate;
             this.endDate = rental.endDate;
             this.pickupLocation = rental.pickupLocation;
@@ -177,9 +190,7 @@ public class Rental {
             this.status = rental.status;
             return this;
         }
-
         public Rental build() {
-            // You can add validation here if needed
             return new Rental(this);
         }
     }
