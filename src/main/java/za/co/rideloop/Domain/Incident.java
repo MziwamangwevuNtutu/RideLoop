@@ -1,75 +1,76 @@
 package za.co.rideloop.Domain;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
+
+/**
+ * Incident.java
+ * Incident model class
+ *
+ * @author : Swatsi Bongani Ratia
+ * @studnr : 230724477
+ * @group : 3I
+ * @Java version: "21.0.3" 2024-04-16 LTS
+ */
 @Entity
 @Table(name = "incidents")
 public class Incident {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int incidentID;
+    private Integer incidentID;
 
     @Column(nullable = false)
-    private String incidentType; // Security or Maintenance
+    private String type; // Security, Maintenance, Accident
 
     @Column(nullable = false)
     private String description;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime incidentDate;
+    @Column(name = "date_reported", nullable = false, updatable = false)
+    private LocalDate dateReported = LocalDate.now(ZoneId.of("Africa/Johannesburg"));
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "profile_id", nullable = false)
-    private CustomerProfile profile;
+    // ✅ Owning side of Many-to-Many
+    @ManyToMany
+    @JoinTable(
+            name = "incident_rentals",
+            joinColumns = @JoinColumn(name = "incident_id"),
+            inverseJoinColumns = @JoinColumn(name = "rental_id")
+    )
+    private List<Rental> rentals;
 
-    // Default constructor for JPA
     protected Incident() {}
 
-    // Simple constructor
-    public Incident(String incidentType, String description, CustomerProfile profile) {
-        this.incidentType = incidentType;
-        this.description = description;
-        this.profile = profile;
-        this.incidentDate = LocalDateTime.now(); // Automatically set current time
+    private Incident(Builder builder) {
+        this.incidentID = builder.incidentID;
+        this.type = builder.type;
+        this.description = builder.description;
+        this.dateReported = builder.dateReported != null ? builder.dateReported : LocalDate.now();
+        this.rentals = builder.rentals;
     }
 
-    // Getters
-    public int getIncidentID() {
-        return incidentID;
-    }
+    public Integer getIncidentID() { return incidentID; }
+    public String getType() { return type; }
+    public String getDescription() { return description; }
+    public LocalDate getDateReported() { return dateReported; }
+    public List<Rental> getRentals() { return rentals; }
 
-    public String getIncidentType() {
-        return incidentType;
-    }
 
-    public String getDescription() {
-        return description;
-    }
 
-    public LocalDateTime getIncidentDate() {
-        return incidentDate;
-    }
+    public static class Builder {
+        private Integer incidentID;
+        private String type;
+        private String description;
+        private LocalDate dateReported;
+        private List<Rental> rentals;
 
-    public CustomerProfile getProfile() {
-        return profile;
-    }
+        public Builder incidentID(Integer incidentID) { this.incidentID = incidentID; return this; }
+        public Builder type(String type) { this.type = type; return this; }
+        public Builder description(String description) { this.description = description; return this; }
+        public Builder dateReported(LocalDate dateReported) { this.dateReported = dateReported; return this; }
+        public Builder rentals(List<Rental> rentals) { this.rentals = rentals; return this; }
 
-    // Setters
-    public void setIncidentType(String incidentType) {
-        this.incidentType = incidentType;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setProfile(CustomerProfile profile) {
-        this.profile = profile;
-    }
-
-    public void setIncidentDate(LocalDateTime incidentDate) {
-        this.incidentDate = incidentDate;
+        public Incident build() { return new Incident(this); }
     }
 }
